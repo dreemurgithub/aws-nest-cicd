@@ -12,11 +12,21 @@ curl -X POST http://localhost:3000/tasks \
   -d '{"message":"hello from the queue"}'
 ```
 
+## Start with a normal PostgreSQL service
+
+Create a PostgreSQL database and role using your local PostgreSQL installation or a managed database service:
+
+```sql
+CREATE USER app WITH PASSWORD 'app';
+CREATE DATABASE app OWNER app;
+```
+
+Ensure Redis is available at the `REDIS_HOST` and `REDIS_PORT` in your environment file. This can be a normally installed Redis service or a managed Redis instance.
+
 ## Local start
 
 ```sh
 cp .env.example .env
-docker compose up -d
 npm install
 npm run migration:run
 npm run start:dev
