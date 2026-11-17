@@ -39,20 +39,6 @@ jobs:
             set -eu
             deploy_dir="/home/ubuntu/app/aws-nest-cicd"
             mkdir -p "$deploy_dir"
-            if [ -r "$deploy_dir/app.pid" ]; then
-              app_pid="$(cat "$deploy_dir/app.pid")"
-              case "$app_pid" in
-                *[!0-9]* | '') ;;
-                *)
-                  kill -- "-$app_pid" 2>/dev/null || true
-                  for _ in 1 2 3 4 5; do
-                    kill -0 -- "-$app_pid" 2>/dev/null || break
-                    sleep 1
-                  done
-                  kill -KILL -- "-$app_pid" 2>/dev/null || true
-                  ;;
-              esac
-            fi
             find "$deploy_dir" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf -- {} +
 
       - name: Upload build and runtime manifests
@@ -62,7 +48,7 @@ jobs:
           username: "ubuntu"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "dist,package.json,package-lock.json"
+          source: "dist,ecosystem.config.cjs,package.json,package-lock.json"
           target: "/home/ubuntu/app/aws-nest-cicd"
 
       - name: Install production dependencies, migrate, and start application
@@ -78,11 +64,5 @@ jobs:
             cd "/home/ubuntu/app/aws-nest-cicd"
             npm ci --omit=dev
             npm run migration:run:prod
-            setsid node dist/main.js > app.log 2>&1 < /dev/null &
-            app_pid=$!
-            echo "$app_pid" > app.pid
-            sleep 2
-            if ! kill -0 "$app_pid" 2>/dev/null; then
-              tail -n 100 app.log
-              exit 1
-            fi
+            pm2 startOrReload ecosystem.config.cjs --update-env
+            pm2 save
