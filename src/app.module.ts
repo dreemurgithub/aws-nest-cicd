@@ -20,15 +20,15 @@ import { TasksModule } from './tasks/tasks.module';
         synchronize: false,
       }),
     }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: {
-          host: config.getOrThrow<string>('REDIS_HOST'),
-          port: Number(config.get('REDIS_PORT', 6379)),
-        },
-      }),
-    }),
+    // BullModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => ({
+    //     connection: {
+    //       host: config.getOrThrow<string>('REDIS_HOST'),
+    //       port: Number(config.get('REDIS_PORT', 6379)),
+    //     },
+    //   }),
+    // }),
     TasksModule,
   ],
 })
