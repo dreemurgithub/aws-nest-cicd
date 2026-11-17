@@ -57,6 +57,17 @@ DATABASE_PASSWORD=password
 Then copy `.env.example` to `.env` and set the database values above along with
 your Redis settings.
 
+After DNS for your domain points to the server and Nginx has that domain in its
+`server_name`, install a Let's Encrypt certificate:
+
+```sh
+sudo ./script/cert.sh api.example.com admin@example.com
+```
+
+For a certificate covering multiple names, provide the extra names after the
+email address. The script installs Certbot from Snap, configures Nginx to
+redirect HTTP to HTTPS, and verifies automatic renewal with a dry run.
+
 Set these GitHub Actions secrets:
 
 | Secret | Value |
