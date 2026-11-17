@@ -48,7 +48,7 @@ jobs:
           username: "ubuntu"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "dist,ecosystem.config.cjs,package.json,package-lock.json"
+          source: "dist,script,ecosystem.config.cjs,package.json,package-lock.json"
           target: "/home/ubuntu/app/aws-nest-cicd"
 
       - name: Install production dependencies, migrate, and start application
