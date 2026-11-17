@@ -37,8 +37,11 @@ jobs:
           script_stop: true
           script: |
             set -eu
-            cd "/home/ubuntu/app/aws-nest-cicd"
-            rm -rf dist
+            deploy_dir="/home/ubuntu/app/aws-nest-cicd"
+            mkdir -p "$deploy_dir"
+            if [ -d "$deploy_dir/dist" ]; then
+              rm -rf "$deploy_dir/dist"
+            fi
 
       - name: Upload build and runtime manifests
         uses: appleboy/scp-action@v0.1.7
