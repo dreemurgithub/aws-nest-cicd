@@ -24,13 +24,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build application
-        run: npm run build
-
-      - name: Run database migrations
-        run: npm run migration:run
-
-      - name: Remove the previous build from the server
+      - name: Prepare application directory on the server
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -42,21 +36,19 @@ jobs:
             set -eu
             deploy_dir="/home/ubuntu/app/aws-nest-cicd"
             mkdir -p "$deploy_dir"
-            if [ -d "$deploy_dir/dist" ]; then
-              rm -rf "$deploy_dir/dist"
-            fi
+            find "$deploy_dir" -mindepth 1 -maxdepth 1 ! -name '.env' -exec rm -rf -- {} +
 
-      - name: Upload build and runtime manifests
+      - name: Upload application source
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: "ubuntu"
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
-          source: "dist,package.json,package-lock.json"
+          source: "src,nest-cli.json,tsconfig.json,tsconfig.build.json,package.json,package-lock.json"
           target: "/home/ubuntu/app/aws-nest-cicd"
 
-      - name: Install production dependencies and start application
+      - name: Install, build, migrate, and start application
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -67,5 +59,7 @@ jobs:
           script: |
             set -eu
             cd "/home/ubuntu/app/aws-nest-cicd"
-            npm ci --omit=dev
+            npm ci
+            npm run build
+            npm run migration:run
             npm run start
