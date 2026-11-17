@@ -39,9 +39,23 @@ Pushes to `main` execute `.github/workflows/deploy.yml`. Before the first deploy
 ```sh
 git clone <repository-url> /srv/aws-nest-cicd
 cd /srv/aws-nest-cicd
-cp .env.example .env # replace with production database and Redis values
-npm install -g pm2
+sudo ./script/setup-package.sh
 ```
+
+`setup-package.sh` supports Ubuntu/Debian and installs PostgreSQL, Node.js/npm,
+and PM2. It creates the local PostgreSQL database below (the name is lowercase
+for PostgreSQL), and is safe to re-run:
+
+```dotenv
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=awsnestcicd
+DATABASE_USER=postgres
+DATABASE_PASSWORD=password
+```
+
+Then copy `.env.example` to `.env` and set the database values above along with
+your Redis settings.
 
 Set these GitHub Actions secrets:
 
